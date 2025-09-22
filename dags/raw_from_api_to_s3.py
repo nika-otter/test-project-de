@@ -1,22 +1,20 @@
 import logging
-
 import duckdb
 import pendulum
+
 from airflow import DAG
 from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 
-# Конфигурация DAG
 OWNER = "nika"
 DAG_ID = "raw_from_api_to_s3"
 
-# Используемые таблицы в DAG
 LAYER = "raw"
 
-# S3
 ACCESS_KEY = Variable.get("access_key")
 SECRET_KEY = Variable.get("secret_key")
+API_KEY = Variable.get("api_key")
 
 LONG_DESCRIPTION = """
 # LONG DESCRIPTION
@@ -39,13 +37,13 @@ def get_dates(**context) -> tuple[pendulum.DateTime, pendulum.DateTime]:
     return start_date, end_date
 
 
-def make_kyiv_day_url(lat: float, lon: float, date: pendulum.DateTime) -> str:
+def make_kyiv_day_url(lat: float, lon: float, date: pendulum.DateTime, api_key) -> str:
     tz_offset = pendulum.duration(hours=3)
     start_ts = (date.start_of("day") - tz_offset).int_timestamp
     end_ts = (date.end_of("day") - tz_offset).int_timestamp
     return (
         f'https://api.openweathermap.org/data/2.5/air_pollution/history?lat={lat}&lon={lon}'
-        f'&start={start_ts}&end={end_ts}&appid=a50d8617c4433fc2fa49638d75994537'
+        f'&start={start_ts}&end={end_ts}&appid={api_key}'
     )
 
 
@@ -53,7 +51,7 @@ def get_and_transfer_api_data_to_s3(**context):
     start_date, end_date = get_dates(**context)
     logging.info(f"💻 Start load for dates: {start_date}/{end_date}")
 
-    url = make_kyiv_day_url(50.45, 30.52, start_date, )
+    url = make_kyiv_day_url(50.45, 30.52, start_date, API_KEY )
     safe_date = start_date.format("YYYY-MM-DD")
     con = duckdb.connect()
     con.sql(f"""

@@ -95,6 +95,16 @@ services:
     restart: always
     ports:
       - "5432:5432"
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres_dwh
+
   minio:
     image: minio/minio:RELEASE.2025-02-18T16-25-55Z
     restart: always
