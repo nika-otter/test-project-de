@@ -56,8 +56,8 @@ To run this project you need:
 - Install Python dependencies:  
   ```bash
   pip install apache-airflow==2.10.5 duckdb==1.2.2
-
-  - **An API key** for OpenWeatherMap  
+  ```
+- **An API key** for OpenWeatherMap  
 - **Credentials from MinIO**: access key, secret key  
 - **Credentials from Postgres DWH**: host, port, user, password  
 - Upload all these secrets and the API key into **Airflow Variables** (Web UI → Admin → Variables)  
